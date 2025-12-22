@@ -144,3 +144,63 @@ button.secondary{ background:var(--accent2); }
   .navlink{ font-size:12px; }
   .grid2{ grid-template-columns:1fr; }
 }
+
+/* Simulator advanced */
+.timeline{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.tstep{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#0b0e2a;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.tstep.active{
+  outline:2px solid #ffffff66;
+  color:var(--text);
+}
+
+.tstep.done{
+  border-color:#4bb36b;
+  background:rgba(75,179,107,0.12);
+  color:#fff;
+}
+
+.memgrid{
+  display:grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap:6px;
+  margin-top:10px;
+}
+
+.cell2{
+  height:34px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#0b0e2a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  color:var(--muted);
+  user-select:none;
+}
+
+.cell2.data{ color:var(--text); }
+.cell2.guard{ color:var(--text); }
+.cell2.meta{ color:var(--text); }
+.cell2.control{ color:var(--text); }
+
+.cell2.hit{ outline:2px solid #ffffff66; }
+.cell2.corrupt{ border-color:#b34b4b; background:rgba(179,75,75,0.25); color:#fff; }
+.cell2.safe{ border-color:#4bb36b; background:rgba(75,179,107,0.18); color:#fff; }
+
+.lbl{ display:block; margin-bottom:6px; color:var(--muted); }
+.range{ width:100%; }
+.checkrow{ margin:6px 0; color:var(--text); }

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulator (kỹ) | Return-to-Win</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <script defer src="../assets/js/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1>Return-to-Win — Simulator trực quan (mô phỏng học tập)</h1>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" aria-label="Menu">
+      <a class="navlink" href="./intro.html" data-page="intro">Giới thiệu</a>
+      <a class="navlink" href="./target.html" data-page="target">Mục tiêu</a>
+      <a class="navlink" href="./binary.html" data-page="binary">Binary &amp; Bảo vệ</a>
+      <a class="navlink" href="./stack.html" data-page="stack">Phân tích Stack</a>
+      <a class="navlink" href="./payload.html" data-page="payload">Payload (Mô phỏng)</a>
+      <a class="navlink" href="./run.html" data-page="run">Chạy Demo (Mô phỏng)</a>
+      <a class="navlink" href="./defense.html" data-page="defense">Phòng vệ</a>
+      <a class="navlink" href="./simulator.html" data-page="sim">Simulator (kỹ)</a>
+    </nav>
+
+    <main class="content">
+      <section class="card">
+        <span class="tag">Simulator</span>
+        <p>
+          Mô phỏng “stack frame” dạng ô nhớ + timeline từng bước. Mục tiêu: thấy rõ
+          <b>copy an toàn vs không an toàn</b>, tác động của <b>canary</b>, và luồng <b>CALL→RET</b>.
+        </p>
+        <div class="callout warn">
+          Đây là mô phỏng khái niệm/phòng thủ. Không sinh payload, không cung cấp offset/địa chỉ/byte-string khai thác thật.
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>1) Thiết lập mô phỏng</h3>
+        <div class="grid2">
+          <div class="card">
+            <label class="lbl">Chế độ Copy API</label>
+            <div class="checkrow">
+              <label><input type="radio" name="copyMode" value="safe" checked /> Safe copy (cắt theo kích thước buffer)</label>
+            </div>
+            <div class="checkrow">
+              <label><input type="radio" name="copyMode" value="unsafe" /> Unsafe copy (có thể tràn)</label>
+            </div>
+
+            <div style="height:10px"></div>
+
+            <label class="lbl">Độ dài input (ký tự)</label>
+            <input id="inLen" type="range" min="0" max="120" value="20" class="range" />
+            <div class="note">Giá trị: <b id="inLenVal">20</b></div>
+
+            <div style="height:10px"></div>
+
+            <label class="lbl">Tốc độ mô phỏng (ms / ô)</label>
+            <input id="speed" type="range" min="0" max="200" value="40" class="range" />
+            <div class="note">Giá trị: <b id="speedVal">40</b></div>
+
+            <div style="height:10px"></div>
+
+            <label class="lbl">Bảo vệ (mô phỏng)</label>
+            <div class="checkrow">
+              <label><input type="checkbox" id="canaryOn" checked /> Stack Canary</label>
+            </div>
+            <div class="checkrow">
+              <label><input type="checkbox" id="aslrOn" checked /> ASLR/PIE (chỉ đổi nhãn minh họa)</label>
+            </div>
+
+            <div style="height:10px"></div>
+
+            <div class="btnrow">
+              <button class="secondary" id="btnStep">Chạy 1 bước</button>
+              <button id="btnAuto">Chạy tự động (từ đầu đến cuối)</button>
+              <button class="secondary" id="btnReset">Reset</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h4>2) Log thời gian thực</h4>
+            <div class="output" id="simLog" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>3) Call stack timeline (từng bước)</h3>
+        <p class="note">
+          Bấm “Chạy 1 bước” để đi qua: <b>CALL</b> → <b>Prologue</b> → <b>Copy</b> → <b>Canary check</b> → <b>Epilogue</b> → <b>RET</b>.
+        </p>
+        <div class="timeline" id="timeline"></div>
+      </section>
+
+      <section class="card">
+        <h3>4) Stack frame (ô nhớ)</h3>
+        <div class="frame">
+          <div class="legend">
+            <span class="pill data">Buffer</span>
+            <span class="pill guard">Canary</span>
+            <span class="pill meta">Saved Frame</span>
+            <span class="pill control">Return Addr</span>
+          </div>
+          <div id="memGrid" class="memgrid" aria-label="Memory grid"></div>
+          <div class="note" id="memHint"></div>
+        </div>
+      </section>
+
+      <section class="card callout ok">
+        Cách demo cho rõ:
+        (1) Chọn <b>Safe copy</b>, kéo input dài → vẫn không tràn.
+        (2) Chọn <b>Unsafe copy</b>, kéo input dài → tràn; bật <b>Canary</b> → bị chặn khi “RET”.
+        (3) Tắt <b>Canary</b> → mô phỏng “RET có thể bị điều hướng” (khái niệm).
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">© Demo học tập — Không thực thi khai thác</footer>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      if (window.DemoSim && window.DemoSim.AdvSim) {
+        window.DemoSim.AdvSim.init({
+          gridId: "memGrid",
+          logId: "simLog",
+          timelineId: "timeline",
+          memHintId: "memHint",
+          inLenId: "inLen",
+          inValId: "inLenVal",
+          speedId: "speed",
+          speedValId: "speedVal",
+          canaryId: "canaryOn",
+          aslrId: "aslrOn",
+          copyModeName: "copyMode",
+          btnStepId: "btnStep",
+          btnAutoId: "btnAuto",
+          btnResetId: "btnReset"
+        });
+      }
+    });
+  </script>
+</body>
+</html>
