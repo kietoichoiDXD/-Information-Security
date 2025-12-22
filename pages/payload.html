@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payload (Mô phỏng) | Return-to-Win</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <script defer src="../assets/js/app.js"></script>
+</head>
+<body>
+<header class="site-header"><h1>Return-to-Win — Demo Trực Quan (Mục đích học tập)</h1></header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Menu">
+    <a class="navlink" href="../pages/intro.html" data-page="intro">Giới thiệu</a>
+    <a class="navlink" href="../pages/target.html" data-page="target">Mục tiêu</a>
+    <a class="navlink" href="../pages/binary.html" data-page="binary">Binary &amp; Bảo vệ</a>
+    <a class="navlink" href="../pages/stack.html" data-page="stack">Phân tích Stack</a>
+    <a class="navlink" href="../pages/payload.html" data-page="payload">Payload (Mô phỏng)</a>
+    <a class="navlink" href="../pages/run.html" data-page="run">Chạy Demo (Mô phỏng)</a>
+    <a class="navlink" href="../pages/defense.html" data-page="defense">Phòng vệ</a>
+  </nav>
+
+  <main class="content">
+    <section class="card">
+      <h3>Payload (mô phỏng)</h3>
+      <p>Trong Return-to-Win, payload thường được mô tả khái niệm như: <b>[đệm]</b> + <b>[điểm đến]</b>. Ở đây chúng ta chỉ hiển thị chuỗi minh họa.</p>
+
+      <div class="grid2">
+        <div class="card">
+          <p>Nhấn để tạo mô phỏng payload:</p>
+          <div class="btnrow">
+            <button onclick="DemoSim.buildPayload('payloadOut')">Tạo Payload (mô phỏng)</button>
+          </div>
+        </div>
+        <div class="output" id="payloadOut" aria-live="polite"></div>
+      </div>
+
+      <div class="callout warn">
+        Lưu ý: Không tạo byte-string/offset/địa chỉ cụ thể để dùng khai thác thật.
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="site-footer">© Demo học tập — Không thực thi khai thác</footer>
+</body>
+</html>

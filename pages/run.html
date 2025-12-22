@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chạy Demo (Mô phỏng) | Return-to-Win</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <script defer src="../assets/js/app.js"></script>
+</head>
+<body>
+<header class="site-header"><h1>Return-to-Win — Demo Trực Quan (Mục đích học tập)</h1></header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Menu">
+    <a class="navlink" href="../pages/intro.html" data-page="intro">Giới thiệu</a>
+    <a class="navlink" href="../pages/target.html" data-page="target">Mục tiêu</a>
+    <a class="navlink" href="../pages/binary.html" data-page="binary">Binary &amp; Bảo vệ</a>
+    <a class="navlink" href="../pages/stack.html" data-page="stack">Phân tích Stack</a>
+    <a class="navlink" href="../pages/payload.html" data-page="payload">Payload (Mô phỏng)</a>
+    <a class="navlink" href="../pages/run.html" data-page="run">Chạy Demo (Mô phỏng)</a>
+    <a class="navlink" href="../pages/defense.html" data-page="defense">Phòng vệ</a>
+  </nav>
+
+  <main class="content">
+    <section class="card">
+      <h3>Chạy demo (mô phỏng)</h3>
+      <p>Hai trạng thái: chạy bình thường và chạy trong kịch bản “điều hướng luồng thực thi” (mô phỏng).</p>
+
+      <div class="btnrow">
+        <button class="secondary" onclick="DemoSim.runNormal('runOut')">Chạy bình thường</button>
+        <button onclick="DemoSim.runRedirected('runOut')">Chạy với payload</button>
+      </div>
+
+      <div class="output" id="runOut" aria-live="polite"></div>
+    </section>
+  </main>
+</div>
+
+<footer class="site-footer">© Demo học tập — Không thực thi khai thác</footer>
+</body>
+</html>

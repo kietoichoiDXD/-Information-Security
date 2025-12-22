@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phân tích Stack | Return-to-Win</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <script defer src="../assets/js/app.js"></script>
+</head>
+<body>
+<header class="site-header"><h1>Return-to-Win — Demo Trực Quan (Mục đích học tập)</h1></header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Menu">
+    <a class="navlink" href="../pages/intro.html" data-page="intro">Giới thiệu</a>
+    <a class="navlink" href="../pages/target.html" data-page="target">Mục tiêu</a>
+    <a class="navlink" href="../pages/binary.html" data-page="binary">Binary &amp; Bảo vệ</a>
+    <a class="navlink" href="../pages/stack.html" data-page="stack">Phân tích Stack</a>
+    <a class="navlink" href="../pages/payload.html" data-page="payload">Payload (Mô phỏng)</a>
+    <a class="navlink" href="../pages/run.html" data-page="run">Chạy Demo (Mô phỏng)</a>
+    <a class="navlink" href="../pages/defense.html" data-page="defense">Phòng vệ</a>
+  </nav>
+
+  <main class="content">
+    <section class="card">
+      <h3>Stack frame (mô hình hóa)</h3>
+      <pre>[ local buffer ][ metadata của stack frame ][ return address ]</pre>
+      <p>Nếu dữ liệu ghi vào <i>local buffer</i> vượt quá giới hạn, nó có thể “tràn” sang vùng lân cận và (về mặt khái niệm) ảnh hưởng tới dữ liệu điều khiển.</p>
+      <div class="callout warn">Trang này chỉ mô tả cấu trúc khái niệm; không hướng dẫn tính offset hay xây dựng dữ liệu khai thác thực.</div>
+    </section>
+  </main>
+</div>
+
+<footer class="site-footer">© Demo học tập — Không thực thi khai thác</footer>
+</body>
+</html>
