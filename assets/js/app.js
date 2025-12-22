@@ -18,6 +18,20 @@
     if (k && k === pageKey) a.classList.add("active");
   });
 
+  // Highlight stepbar (Bước 1/7) if present
+  const stepOrder = ["intro", "target", "binary", "stack", "payload", "run", "defense"];
+  const currentStepIndex = stepOrder.indexOf(pageKey);
+  document.querySelectorAll(".stepbar .step").forEach(a => {
+    const k = a.getAttribute("data-step");
+    if (!k) return;
+    if (k === pageKey) a.classList.add("active");
+
+    const idx = stepOrder.indexOf(k);
+    if (currentStepIndex >= 0 && idx >= 0 && idx < currentStepIndex) {
+      a.classList.add("done");
+    }
+  });
+
   // Các mô phỏng an toàn: chỉ hiển thị chuỗi minh họa, không tạo payload thực
   window.DemoSim = {
     buildPayload: function (outId) {

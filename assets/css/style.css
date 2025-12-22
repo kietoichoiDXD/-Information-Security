@@ -204,3 +204,56 @@ button.secondary{ background:var(--accent2); }
 .lbl{ display:block; margin-bottom:6px; color:var(--muted); }
 .range{ width:100%; }
 .checkrow{ margin:6px 0; color:var(--text); }
+
+.frame{
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px;
+  background:rgba(255,255,255,0.03);
+}
+
+.legend{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#0b0e2a;
+  font-size:12px;
+  color:var(--text);
+}
+
+.pill.data{ border-color:var(--accent); }
+.pill.guard{ border-color:var(--warnBorder); }
+.pill.meta{ border-color:var(--border); }
+.pill.control{ border-color:var(--accent2); }
+
+/* Stepbar (Bước 1/7) */
+.stepbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.step{
+  display:inline-block;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,0.03);
+  color:var(--muted);
+  text-decoration:none;
+  font-size:12px;
+}
+
+.step:hover{ background:rgba(255,255,255,0.06); color:var(--text); }
+.step.active{ background:var(--accent); border-color:var(--accent2); color:#fff; }
+.step.done{ background:var(--okBg); border-color:var(--okBorder); color:#fff; }
