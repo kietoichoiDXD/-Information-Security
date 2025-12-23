@@ -26,15 +26,32 @@ Trang Simulator có 4 khu vực bạn sẽ nhìn/điều khiển liên tục:
 
 Trong mô phỏng này, “stack frame” được chia thành các vùng (theo thứ tự từ trái sang phải trong lưới):
 
-- **Buffer (B)**: vùng dữ liệu đầu vào được copy vào.
-- **Canary (C)**: vùng “guard” để phát hiện ghi tràn (nếu bật Canary).
-- **Saved Frame (S)**: vùng metadata tượng trưng (ví dụ saved frame pointer).
-- **Return Addr (R / R\*)**: vùng dữ liệu điều khiển tượng trưng (return address).
+- **Buffer (B)**: vùng “bộ đệm cục bộ” (local buffer) nơi dữ liệu đầu vào được copy vào.
+  - Khi đến bước **Copy**, bạn sẽ thấy các ô Buffer lần lượt được đánh dấu **hit** (ghi theo từng ô).
+  - Nếu chọn **Safe copy**, mô phỏng sẽ giới hạn việc ghi trong Buffer → không chạm sang vùng khác.
+
+- **Canary (C)**: vùng “chốt an toàn” (guard) đặt ngay sau Buffer để phát hiện hành vi ghi tràn (mô phỏng cơ chế *stack canary*).
+  - Khi **Canary ON**, canary được coi là “phải giữ nguyên” cho đến bước **Canary check**.
+  - Nếu **Unsafe copy** làm ghi lan sang vùng Canary, mô phỏng coi như canary bị thay đổi → bước **Canary check** sẽ **FAIL** và dừng trước RET (mô phỏng).
+  - Nếu Canary OFF, mô phỏng bỏ qua kiểm tra này.
+
+- **Saved Frame (S)**: vùng “metadata của stack frame” (mô phỏng).
+  - Thực tế thường là dữ liệu được lưu để khôi phục trạng thái khi hàm kết thúc (ví dụ saved frame pointer / một số giá trị lưu tạm).
+  - Trong simulator, vùng này giúp bạn thấy “tràn” không chỉ ảnh hưởng buffer mà còn có thể lan sang dữ liệu phụ trợ của stack frame.
+
+- **Return Addr (R / R\*)**: vùng “địa chỉ trả về” (return address) **theo khái niệm** — dữ liệu điều khiển dùng ở bước **RET** để quay lại nơi gọi hàm.
+  - Nếu mô phỏng thấy vùng này bị chạm trong **Unsafe copy**, log sẽ báo “nguy cơ điều hướng luồng” (khái niệm).
+  - **R ↔ R\*** là *chỉ để minh hoạ ASLR/PIE*: bật ASLR/PIE thì nhãn đổi sang **R\*** để nhấn mạnh “điểm đến có thể thay đổi giữa các lần chạy”. Không có địa chỉ thật.
 
 Trạng thái màu/viền (mô phỏng):
 - **hit**: ô đang được ghi trong lúc chạy animation.
 - **corrupt**: ô bị “ghi đè” (mô phỏng tràn).
 - **safe**: ô được đánh dấu “ổn”/pass (đặc biệt với canary khi còn nguyên).
+
+Gợi ý đọc nhanh trên lưới:
+- **Chỉ hit trong Buffer** → an toàn hơn (mô phỏng “không tràn”).
+- **Bắt đầu corrupt sau Buffer** → mô phỏng “tràn” đã xảy ra.
+- **Canary ON + canary corrupt** → Canary check sẽ FAIL và luồng dừng trước RET.
 
 ## 4) Phần 1 — Copy API (Safe vs Unsafe)
 
