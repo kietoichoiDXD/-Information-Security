@@ -72,6 +72,43 @@ Khi đến bước **Copy**, Simulator sẽ chạy animation và:
 
 Bạn có 2 cách chạy:
 
+### Timeline gồm những gì (và bạn nên quan sát gì)
+
+Timeline cố định theo thứ tự:
+
+1) **CALL**
+- Ý nghĩa: chuyển điều khiển sang hàm “vulnerable_function” (mô phỏng).
+- Quan sát: log sẽ ghi nhận bắt đầu vào hàm; lưới ô nhớ chưa thay đổi nhiều.
+
+2) **Prologue (setup stack frame)**
+- Ý nghĩa: mô phỏng việc tạo stack frame (bố trí vùng Buffer/Canary/Saved/Return).
+- Quan sát: các vùng được “khởi tạo” rõ ràng; nếu Canary ON, vùng Canary sẽ được đánh dấu là vùng guard.
+
+3) **Copy input → buffer**
+- Ý nghĩa: mô phỏng thao tác copy input vào buffer.
+- Quan sát quan trọng nhất:
+  - Ô được ghi sẽ nhấp theo từng bước (trạng thái **hit**).
+  - **Safe copy**: chỉ ghi trong vùng Buffer.
+  - **Unsafe copy**: có thể ghi lan sang vùng Canary/Saved/Return (đánh dấu **corrupt**).
+
+4) **Canary check**
+- Ý nghĩa: nếu Canary ON, mô phỏng kiểm tra canary có “còn nguyên” hay không.
+- Quan sát:
+  - Canary ON + có ghi đè vùng Canary ⇒ **FAIL** và luồng bị dừng trước RET (mô phỏng).
+  - Canary ON + không chạm canary ⇒ **PASS**.
+  - Canary OFF ⇒ bỏ qua bước kiểm tra.
+
+5) **Epilogue (restore frame)**
+- Ý nghĩa: mô phỏng bước “thu dọn” stack frame trước khi return.
+- Quan sát: nếu đã bị dừng bởi Canary FAIL thì epilogue chỉ ghi log “không chạy”.
+
+6) **RET (return to caller)**
+- Ý nghĩa: mô phỏng quay trở về caller.
+- Quan sát:
+  - Nếu luồng đã bị dừng ⇒ không RET.
+  - Nếu **Unsafe copy** và vùng control bị chạm ⇒ log sẽ nói “nguy cơ điều hướng luồng (khái niệm)”.
+  - Nếu không có dấu hiệu bất thường ⇒ log nói return bình thường.
+
 ### Chạy 1 bước
 - Bấm **Chạy 1 bước** để tiến theo thứ tự:
   1) CALL
@@ -86,6 +123,21 @@ Trong lúc Copy, Simulator chạy animation theo tốc độ bạn chọn.
 ### Chạy tự động
 - Bấm **Chạy tự động (từ đầu đến cuối)** để chạy toàn bộ chuỗi bước.
 - Nếu đang trong animation Copy, Simulator sẽ chờ cho xong rồi mới qua bước tiếp theo.
+
+### Cách chạy “chi tiết” để nhìn rõ từng hiện tượng
+
+Đây là một quy trình thao tác kiểu “lab” (không cần kiến thức khai thác):
+
+1) **Reset** để đưa mọi thứ về trạng thái ban đầu.
+2) Chọn **Tốc độ** khoảng **80–120 ms/ô** nếu bạn muốn thấy rõ từng ô.
+3) Chọn chế độ **Safe / Unsafe**.
+4) Kéo **Độ dài input** theo mục tiêu quan sát (ngắn để không tràn, dài để thấy tràn).
+5) Bấm **Chạy 1 bước** và dừng lại ở mỗi bước để đối chiếu:
+  - Timeline đang đứng ở bước nào
+  - Log nói gì
+  - Vùng nào trên lưới đang bị hit/corrupt
+
+Mẹo: Nếu bạn muốn tập trung vào hành vi Copy, hãy bấm Step đến đúng bước **Copy**, quan sát animation chạy xong rồi mới Step tiếp.
 
 ## 8) Phần 5 — ASLR/PIE (chỉ đổi nhãn minh hoạ)
 
@@ -125,13 +177,35 @@ Quan sát:
 - Log nhắc vùng **control** bị chạm
 - RET báo “có thể bị điều hướng (mô phỏng)”
 
-## 10) Reset và mẹo quan sát
+## 10) Các “trường hợp chạy” thường gặp (bảng tổng hợp)
+
+Bạn có thể xem Simulator như một bảng quyết định theo 3 biến:
+- Copy mode: **Safe** hoặc **Unsafe**
+- Canary: **ON** hoặc **OFF**
+- Input length: **ngắn** (không vượt Buffer) hoặc **dài** (vượt Buffer)
+
+Kết quả mong đợi (mô phỏng):
+
+| Copy mode | Canary | Input length | Quan sát trên lưới ô nhớ | Kết luận ở RET (mô phỏng) |
+|---|---|---|---|---|
+| Safe | ON | Ngắn | Chỉ hit Buffer, không corrupt | RET bình thường |
+| Safe | ON | Dài | Vẫn chỉ hit Buffer (bị cắt theo buffer) | RET bình thường |
+| Safe | OFF | Dài | Như trên (không tràn) | RET bình thường |
+| Unsafe | ON | Ngắn | Có thể chỉ hit Buffer (nếu chưa vượt) | RET bình thường |
+| Unsafe | ON | Dài | Canary/Meta/Control bị corrupt | Canary FAIL → dừng trước RET |
+| Unsafe | OFF | Dài | Canary/Meta/Control bị corrupt | RET báo “nguy cơ điều hướng” (khái niệm) |
+
+Gợi ý nhanh để tạo “ngắn/dài”:
+- **Ngắn**: kéo input thấp hơn mức mà bạn thấy chỉ vùng Buffer bị hit.
+- **Dài**: kéo input đủ lớn để thấy các ô ngoài Buffer bắt đầu corrupt.
+
+## 11) Reset và mẹo quan sát
 
 - Bấm **Reset** khi muốn quay lại trạng thái ban đầu.
 - Nếu khó theo dõi, tăng tốc độ (ms/ô) lên ~80–120 để nhìn từng ô.
 - Dùng log để đối chiếu với timeline: mỗi bước đều có thông báo tương ứng.
 
-## 11) Giới hạn mô phỏng (để tránh hiểu sai)
+## 12) Giới hạn mô phỏng (để tránh hiểu sai)
 
 - Đây không phải CPU thật/stack thật: chỉ là mô hình hoá.
 - Không có địa chỉ thật, không có offset thật, không có payload.
