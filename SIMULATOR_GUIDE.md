@@ -26,6 +26,13 @@ Trang Simulator có 4 khu vực bạn sẽ nhìn/điều khiển liên tục:
 
 Trong mô phỏng này, “stack frame” được chia thành các vùng (theo thứ tự từ trái sang phải trong lưới):
 
+Sơ đồ ASCII (chỉ để trực quan hoá thứ tự vùng):
+
+```text
+[ Buffer (B) ... ][ Canary (C) ][ Saved Frame (S) ][ Return Addr (R/R*) ]
+  ^ copy ghi vào đây trước            ^ nếu tràn có thể chạm tới đây
+```
+
 - **Buffer (B)**: vùng “bộ đệm cục bộ” (local buffer) nơi dữ liệu đầu vào được copy vào.
   - Khi đến bước **Copy**, bạn sẽ thấy các ô Buffer lần lượt được đánh dấu **hit** (ghi theo từng ô).
   - Nếu chọn **Safe copy**, mô phỏng sẽ giới hạn việc ghi trong Buffer → không chạm sang vùng khác.
